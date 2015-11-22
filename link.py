@@ -11,15 +11,18 @@ class Link(Agent):
         Agent.__init__(self)
         self.aplpha = 1
         self.gama = 1
+        self.env = None
 
     def update_utility(self, env):
         # aqui eu calculo o valor de um estado
-        self.aplpha = self.utility_table.get(env.state, self.a) -0.1
+        self.env = env
+        #self.aplpha = self.utility_table.get(env.state, self.a) -0.1
         nextState = env.execute(env.state)[0]
         stateReward = env.execute(env.state)[1]
         # estou armazenando tambem o alpha para usarmos nas proximas multiplicacoes do estado...
-        self.utility_table[state,action] = (self.aplpha, stateReward + self.gama * argmax(nextState.available_actions(nextState.state), fn) - self.utility_table.get(env.state, self.a)[1])
-        # a linha de cima é aquela formula loca do q learning la
+        print self.utility_table.values()
+        self.utility_table[env.state,self.a] = ( stateReward + self.gama * argmax(env.available_actions(nextState), self.fn)[1][1] - self.utility_table.get(env.state, self.a))
+        # a linha de cima e aquela formula loca do q learning la
         """
         Updates the learned utility values in the agent.
 
@@ -44,4 +47,4 @@ class Link(Agent):
         #raise NotImplementedError
 
     def fn(self, action):
-        return self.execute(a)[1]
+        return self.env.execute(action)
