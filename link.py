@@ -22,7 +22,7 @@ class Link(Agent):
         flag = False
         best_s = None
         stateReward = 0
-        alpha = 0.3
+        alpha = 1
         while True:
             best_r = -999999
             best_a = 0 
@@ -37,15 +37,22 @@ class Link(Agent):
                     best_s = env.execute(i)[0]
                     best_a = i
 
-            aux1 = self.utility_table[s,a]
+            aux1 = self.utility_table.get((s,a))
+            if aux1 == None:
+                aux1 = 0
+            aux2 = self.utility_table.get((best_s,best_a))
+            if aux2 == None:
+                aux2 = 0
 
             # self.utility_table[s,a] = self.utility_table.get(s,a) + alpha*( stateReward + self.gama * self.utility_table.get(best_s,best_a) - self.utility_table.get(s,a))
-            self.utility_table[s,a] = aux1 + alpha*( stateReward + self.gama * self.utility_table[best_s,best_a] - self.utility_table[s,a])
+            self.utility_table[(s,a)] = aux1 + alpha*( stateReward + self.gama * aux2 - aux1)
 
-            print 'A: {} B: {}'.format(self.utility_table[s,a], self.utility_table.get(s,a))
+            #self.utility_table[(s,a)] = 1
+
+            print 'A: {} B: {} Result: {} Aux1: {} '.format(self.utility_table[s,a], self.utility_table.get((s,a)), (aux1 + alpha*( stateReward + self.gama * aux2 - aux1)), aux1)
             s = best_s
             a = best_a
-            #alpha -= 0.01
+            alpha -= 0.01
             if flag:
                 break
             if env.terminal(s) or alpha <= 0:
@@ -68,7 +75,10 @@ class Link(Agent):
     def q_value(self, state, action):
         # aqui eu retorno a politica para um estado 
         #return self.utility_table[state,action]
-        return self.utility_table.get(state,action)
+        a = self.utility_table.get((state,action))
+        if a == None:
+            return 0
+        return a
         """
         Return the utility for an action and/or action.
 
